@@ -37,16 +37,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@gitlab.com/nasserghiasi/camera.js.git"
+    "url": "git+ssh://git@github.com:camerajs/camerajs.git"
   },
   "keywords": [
     "html5",
     "camera"
   ],
   "author": "Nasser Ghiasi <nasserghiasi@gmail.com>",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
-    "url": "https://gitlab.com/nasserghiasi/camera.js/issues"
+    "url": "https://github.com/camerajs/camerajs"
   },
-  "homepage": "https://gitlab.com/nasserghiasi/camera.js#README"
+  "homepage": "https://github.com/camerajs/camerajs"
 }
