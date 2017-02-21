@@ -1,0 +1,26 @@
+{
+  "name": "camera.js",
+  "description": "camera.js",
+  "main": [
+    "./dist/camera.js",
+    "./dist/camera.css"
+  ],
+  "authors": [
+    "Nasser Ghiasi <nasserghiasi@gmail.com>",
+    "Mohammad Kermani <nasserghiasi@gmail.com>"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "html5",
+    "camera",
+    "typescript"
+  ],
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
