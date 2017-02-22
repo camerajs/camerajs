@@ -1,19 +1,21 @@
 import {preferences} from "../preferences";
 export class browser {
-    static checkBrowserSupport(): boolean {
+
+    static checkBrowserSupport() {
         /**
          * This method will check if the user browser is supporting HTML5 camera API or not
          * The result of the !!(navigator.getUserMedia...) will be true or false
          * Learn more: https://www.html5rocks.com/en/tutorials/getusermedia/intro/
          * Learn more: https://hacks.mozilla.org/2013/02/cross-browser-camera-capture-with-getusermediawebrtc/
-         * @return true or false
+         * Solution for old navigator object properties: http://stackoverflow.com/a/13642033/3176270
          **/
-        preferences.browserCameraSupport = !!(navigator.getUserMedia || navigator.webkitGetUserMedia ||
-        navigator.mozGetUserMedia || navigator.msGetUserMedia);
+        let nav = <any>navigator;
+        preferences.browserCameraSupport = !!(nav.getUserMedia || nav.webkitGetUserMedia ||
+        nav.mozGetUserMedia || nav.msGetUserMedia);
         return preferences.browserCameraSupport;
     }
 
-    static checkMobile ():boolean{
+    static checkMobile(): boolean {
         //Return true if the user browser is a mobile browser:
         let check = false;
         (function (a) {
