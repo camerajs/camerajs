@@ -1,14 +1,16 @@
 import {preferences} from "../preferences";
 export class browser {
-    static checkBrowserSupport():boolean {
-        //This method will check if the user browser is supporting HTML5 camera API or not
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia ||
-            navigator.hasOwnProperty("webkitGetUserMedia") ||
-            navigator.hasOwnProperty("mozGetUserMedia")) {
-            preferences.browserCameraSupport = true;
-            return true;
-        }
-        return false;
+    static checkBrowserSupport(): boolean {
+        /**
+         * This method will check if the user browser is supporting HTML5 camera API or not
+         * The result of the !!(navigator.getUserMedia...) will be true or false
+         * Learn more: https://www.html5rocks.com/en/tutorials/getusermedia/intro/
+         * Learn more: https://hacks.mozilla.org/2013/02/cross-browser-camera-capture-with-getusermediawebrtc/
+         * @return true or false
+         **/
+        preferences.browserCameraSupport = !!(navigator.getUserMedia || navigator.webkitGetUserMedia ||
+        navigator.mozGetUserMedia || navigator.msGetUserMedia);
+        return preferences.browserCameraSupport;
     }
 
     static checkMobile ():boolean{
@@ -19,5 +21,4 @@ export class browser {
         })(navigator.userAgent || navigator.vendor);
         return check;
     }
-
 }
