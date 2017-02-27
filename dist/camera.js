@@ -82,13 +82,14 @@ var load_1 = require("./events/load");
 var preferences_1 = require("./preferences");
 var utils_1 = require("./lib/utils");
 var browser_1 = require("./lib/browser");
+var setCamera_1 = require("./lib/setCamera");
 var cameraInitializer = function () {
     function cameraInitializer() {
         cameraInitializer.ready();
     }
     cameraInitializer.ready = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var loadEventInstancew;
+            var loadEventInstancew, i;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -98,11 +99,13 @@ var cameraInitializer = function () {
                     case 1:
                         //https://github.com/Microsoft/TypeScript/wiki/What's-new-in-TypeScript#downlevel-async-functions
                         _a.sent();
-                        if (!browser_1.browser.checkBrowserSupport()) {
-                            utils_1.utils.log("Your browser does not support camera", "warn");
-                        }
                         if (!preferences_1.preferences.isHttps) {
                             utils_1.utils.log("HTTPS required", "warn");
+                        }
+                        if (!browser_1.browser.checkBrowserSupport()) {
+                            utils_1.utils.log("Your browser does not support camera", "warn");
+                        } else {
+                            i = new setCamera_1.setCamera();
                         }
                         return [2 /*return*/];
                 }
@@ -113,7 +116,7 @@ var cameraInitializer = function () {
 }();
 new cameraInitializer();
 
-},{"./events/load":2,"./lib/browser":3,"./lib/utils":4,"./preferences":5}],2:[function(require,module,exports){
+},{"./events/load":2,"./lib/browser":3,"./lib/setCamera":4,"./lib/utils":5,"./preferences":6}],2:[function(require,module,exports){
 "use strict";
 
 var utils_1 = require("../lib/utils");
@@ -146,19 +149,23 @@ var loadEvent = function () {
 }();
 exports.loadEvent = loadEvent;
 
-},{"../lib/browser":3,"../lib/utils":4,"../preferences":5}],3:[function(require,module,exports){
+},{"../lib/browser":3,"../lib/utils":5,"../preferences":6}],3:[function(require,module,exports){
 "use strict";
 
 var preferences_1 = require("../preferences");
 var browser = function () {
     function browser() {}
     browser.checkBrowserSupport = function () {
-        //This method will check if the user browser is supporting HTML5 camera API or not
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia || navigator.hasOwnProperty("webkitGetUserMedia") || navigator.hasOwnProperty("mozGetUserMedia")) {
-            preferences_1.preferences.browserCameraSupport = true;
-            return true;
-        }
-        return false;
+        /**
+         * This method will check if the user browser is supporting HTML5 camera API or not
+         * The result of the !!(navigator.getUserMedia...) will be true or false
+         * Learn more: https://www.html5rocks.com/en/tutorials/getusermedia/intro/
+         * Learn more: https://hacks.mozilla.org/2013/02/cross-browser-camera-capture-with-getusermediawebrtc/
+         * Solution for old navigator object properties: http://stackoverflow.com/a/13642033/3176270
+         **/
+        var nav = navigator;
+        preferences_1.preferences.browserCameraSupport = !!(nav.getUserMedia || nav.webkitGetUserMedia || nav.mozGetUserMedia || nav.msGetUserMedia);
+        return preferences_1.preferences.browserCameraSupport;
     };
     browser.checkMobile = function () {
         //Return true if the user browser is a mobile browser:
@@ -172,7 +179,81 @@ var browser = function () {
 }();
 exports.browser = browser;
 
-},{"../preferences":5}],4:[function(require,module,exports){
+},{"../preferences":6}],4:[function(require,module,exports){
+"use strict";
+
+var utils_1 = require("./utils");
+var setCamera = function () {
+    function setCamera() {
+        var cameraTags = setCamera.getCameraTags();
+        if (cameraTags.length) {
+            //if any camera tag found:
+            this.createCameraView(cameraTags);
+        }
+    }
+    setCamera.getCameraTags = function () {
+        /**
+         * This should be a method, because we will have more things to check for a camera-tag,
+         * like some settings & configurations from the camera tag attributes
+         **/
+        return document.querySelectorAll('[data-camera]');
+    };
+    setCamera.prototype.createCameraView = function (cameraTags) {
+        //Check the number of user camera/audio inputs that are installed into user device (if 0 , it means no camera found):
+        setCamera.listCameraAndMicrophones();
+        var svgIconCapture = '<?xml version="1.0" ?><svg style="enable-background:new 0 0 24 24;" version="1.1" viewBox="0 0 24 24" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g id="info"/><g id="icons"><path d="M19,7h-0.4c-0.4,0-0.7-0.2-0.9-0.6l-1.2-2.3c-0.3-0.7-1-1.1-1.8-1.1H9.2C8.5,3,7.8,3.4,7.4,4.1L6.3,6.4   C6.1,6.8,5.8,7,5.4,7H5c-2.2,0-4,1.8-4,4v6c0,2.2,1.8,4,4,4h14c2.2,0,4-1.8,4-4v-6C23,8.8,21.2,7,19,7z M12,17c-2.2,0-4-1.8-4-4   c0-2.2,1.8-4,4-4s4,1.8,4,4C16,15.2,14.2,17,12,17z" id="photo"/></g></svg>';
+        var _loop_1 = function _loop_1(i) {
+            var currentCameraTag = cameraTags[i];
+            currentCameraTag.className = 'camerajs-element';
+            currentCameraTag.innerHTML = '<video id="camerajs-' + i + '" width="640" height="480" autoplay></video>' + '<canvas id="camerajs-canvas-' + i + '" width="640" height="480"></canvas>' + '<div class="camerajs-menu"><a>' + svgIconCapture + '</a></div>';
+            var videoElement = document.getElementById('camerajs-' + i);
+            navigator.mediaDevices.getUserMedia({ video: true }).then(function (stream) {
+                videoElement.src = window.URL.createObjectURL(stream);
+                videoElement.play();
+            });
+            var canvasElement = document.getElementById('camerajs-canvas-' + i);
+            var canvasContext = canvasElement.getContext('2d');
+            // Trigger photo take
+            currentCameraTag.querySelector(".camerajs-menu>a").addEventListener("click", function () {
+                canvasContext.drawImage(videoElement, 0, 0, 640, 480);
+            });
+        };
+        //loop through founded camera tags, and insert video tag into them (video tag will let us stream camera output)
+        for (var i = 0; i < cameraTags.length; i++) {
+            _loop_1(i);
+        }
+    };
+    setCamera.listCameraAndMicrophones = function () {
+        var inputs = {};
+        //This function will return the number of founded cameras and microphones on user's device.
+        navigator.mediaDevices.enumerateDevices().then(function (devices) {
+            devices.forEach(function (device) {
+                // inputs[device.kind][deviceCounter]['id'] =   device.deviceId;
+                //inputs[device.kind][deviceCounter]['label'] =   device.label;
+                if (!inputs[device.kind]) {
+                    /*
+                     * //Initialize the array for, otherwise the .push will returns
+                     * "Error: Cannot read property 'push' of undefined in [null]."
+                     **/
+                    inputs[device.kind] = [];
+                }
+                inputs[device.kind].push({ label: device.label, deviceId: device.deviceId });
+            });
+            //If no video input (webCam) found on user device, console log it
+            if (inputs['videoinput'].length == 0) {
+                utils_1.utils.log("No video input found on this device", 'warn');
+            }
+            return inputs;
+        }).catch(function (err) {
+            utils_1.utils.log(err.name + ": " + err.message, "warn");
+            return false;
+        });
+    };
+    return setCamera;
+}();
+exports.setCamera = setCamera;
+
+},{"./utils":5}],5:[function(require,module,exports){
 "use strict";
 
 var preferences_1 = require("../preferences");
@@ -185,8 +266,8 @@ var utils = function () {
                 case 'warn':
                     console.warn(message);
                     break;
-                case 'log':
-                    console.log(message);
+                case 'info':
+                    console.info(message);
                     break;
                 case 'debug':
                     console.debug(message);
@@ -212,7 +293,7 @@ var utils = function () {
 }();
 exports.utils = utils;
 
-},{"../preferences":5}],5:[function(require,module,exports){
+},{"../preferences":6}],6:[function(require,module,exports){
 "use strict";
 
 var preferences = function () {

@@ -2,6 +2,7 @@ import {loadEvent} from "./events/load";
 import {preferences} from "./preferences";
 import {utils} from "./lib/utils";
 import {browser} from "./lib/browser";
+import {setCamera} from "./lib/setCamera";
 import {upload} from "./lib/upload";
 class cameraInitializer {
     constructor() {
@@ -14,13 +15,19 @@ class cameraInitializer {
 
         await loadEventInstancew.eventListener();
 
-        if (!browser.checkBrowserSupport()) {
-            utils.log("Your browser does not support camera", "warn");
-        }
-
         if (!preferences.isHttps) {
             utils.log("HTTPS required", "warn");
         }
+
+        if (!browser.checkBrowserSupport()) {
+            utils.log("Your browser does not support camera", "warn");
+        }else{
+            //If user browser is supporting camera, then:
+            var i=new setCamera();
+        }
+
+
+
     }
 }
 

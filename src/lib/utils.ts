@@ -8,8 +8,8 @@ export class utils {
                 case 'warn':
                     console.warn(message);
                     break;
-                case 'log':
-                    console.log(message);
+                case 'info':
+                    console.info(message);
                     break;
                 case 'debug':
                     console.debug(message);
