@@ -10,7 +10,6 @@ var minify = require('gulp-minify');
 var uglify = require('gulp-uglify');
 var sass = require('gulp-sass');
 
-
 gulp.task('build', ['sass'], function () {
     browserify({
         basedir: '.',
