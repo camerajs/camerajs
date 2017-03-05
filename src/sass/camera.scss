@@ -1,7 +1,7 @@
-@mixin center-align{
+@mixin center-align {
   margin: auto;
-  top:0;
-  right:0;
+  top: 0;
+  right: 0;
   bottom: 0;
   left: 0;
 }
@@ -9,14 +9,14 @@
 .camerajs-element {
   position: relative;
   overflow: hidden;
-  height:480px;
+  height: 480px;
   width: 640px;
-  &>video{
+  & > video {
     position: absolute;
     @include center-align;
   }
 
-  &>canvas{
+  & > canvas {
     position: absolute;
     @include center-align;
   }
@@ -36,38 +36,35 @@
       padding: 5px;
       @include center-align;
       border-radius: 50%;
-      border:1px solid rgba(255, 255, 255, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.5);
       background: rgba(0, 0, 0, 0.3);
-      transition:0.35s ease-in-out;
+      transition: 0.35s ease-in-out;
       cursor: pointer;
       svg {
         position: absolute;
-        width:45px;
+        width: 45px;
         height: auto;
         @include center-align;
-        fill:rgba(255,255,255,0.5);
-        transition:0.2s ease-in-out;
+        fill: rgba(255, 255, 255, 0.5);
+        transition: 0.2s ease-in-out;
       }
 
-      &:hover{
-        border-color:white;
+      &:hover {
+        border-color: white;
       }
-      &:hover svg{
-          fill:rgba(255, 255, 255, 0.8);
+      &:hover svg {
+        fill: rgba(255, 255, 255, 0.8);
       }
 
-      &:active{
+      &:active {
         background: black;
         border-color: white;
         box-shadow: 0 0 3px white, 0 0 6px rgba(255, 255, 255, 0.5);
         transition: 0.2s ease-out;
-        svg{
-          fill:white;
+        svg {
+          fill: white;
         }
       }
-
-
-
     }
   }
 }

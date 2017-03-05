@@ -20,34 +20,79 @@ export class setCamera {
         //Check the number of user camera/audio inputs that are installed into user device (if 0 , it means no camera found):
         setCamera.listCameraAndMicrophones();
 
-        let svgIconCapture: any = '<?xml version="1.0" ?><svg style="enable-background:new 0 0 24 24;" version="1.1" viewBox="0 0 24 24" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g id="info"/><g id="icons"><path d="M19,7h-0.4c-0.4,0-0.7-0.2-0.9-0.6l-1.2-2.3c-0.3-0.7-1-1.1-1.8-1.1H9.2C8.5,3,7.8,3.4,7.4,4.1L6.3,6.4   C6.1,6.8,5.8,7,5.4,7H5c-2.2,0-4,1.8-4,4v6c0,2.2,1.8,4,4,4h14c2.2,0,4-1.8,4-4v-6C23,8.8,21.2,7,19,7z M12,17c-2.2,0-4-1.8-4-4   c0-2.2,1.8-4,4-4s4,1.8,4,4C16,15.2,14.2,17,12,17z" id="photo"/></g></svg>';
-
         //loop through founded camera tags, and insert video tag into them (video tag will let us stream camera output)
         for (let i = 0; i < cameraTags.length; i++) {
             let currentCameraTag: HTMLElement = cameraTags[i];
             currentCameraTag.className = 'camerajs-element';
+            currentCameraTag.appendChild(setCamera._createVideoElement(i));
+            currentCameraTag.appendChild(setCamera._createCanvasElement(i));
+            currentCameraTag.appendChild(setCamera._createCameraMenu());
 
-            currentCameraTag.innerHTML = '<video id="camerajs-' + i + '" width="640" height="480" autoplay></video>' +
-                '<canvas id="camerajs-canvas-' + i + '" width="640" height="480"></canvas>' +
-                '<div class="camerajs-menu"><a>' + svgIconCapture + '</a></div>';
-
+            //Stream the camera output by a video tag:
             let videoElement: HTMLVideoElement = <HTMLVideoElement>document.getElementById('camerajs-' + i);
             navigator.mediaDevices.getUserMedia({video: true}).then(function (stream) {
                 videoElement.src = window.URL.createObjectURL(stream);
                 videoElement.play();
             });
 
-
+            //Initialize the canvas to put the captured photo into it:
             let canvasElement: HTMLCanvasElement = <HTMLCanvasElement>document.getElementById('camerajs-canvas-' + i);
             let canvasContext: any = canvasElement.getContext('2d');
 
-            // Trigger photo take
+            //Capture photo:
             currentCameraTag.querySelector(".camerajs-menu>a").addEventListener("click", function () {
                 canvasContext.drawImage(videoElement, 0, 0, 640, 480);
             });
         }
     }
 
+    private static _createVideoElement(elementIndex: number) {
+        /*
+         * Inside the createCameraView method, we will need to make something that user can see the output of the camera
+         *  we need to put a video, canvas tag, and camera main menu (the capture and change camera from rear to front
+         *  will be inside menu, also filter and effects) - This method is just for video element and will let user to see
+         *  camera output
+         * */
+        let videoTag: HTMLVideoElement = document.createElement("video");
+        videoTag.id = "camerajs-" + elementIndex;
+        videoTag.setAttribute('width', '640');
+        videoTag.setAttribute('height', '480');
+        videoTag.setAttribute("autoplay", "true");
+        return videoTag;
+    }
+
+    private static _createCanvasElement(elementIndex: number) {
+        /*
+         * Inside the createCameraView method, we will need to make something that user can see the output of the camera
+         *  we need to put a video, canvas tag, and camera main menu (the capture and change camera from rear to front
+         *  will be inside menu, also filter and effects) - Canvas element will be used when we capture a picture
+         * */
+        let canvasTag: HTMLCanvasElement = document.createElement("canvas");
+        canvasTag.id = "camerajs-canvas-" + elementIndex;
+        canvasTag.setAttribute('width', '640');
+        canvasTag.setAttribute('height', '480');
+        return canvasTag;
+    }
+
+    private static _createCameraMenu() {
+        /*
+         * Inside the createCameraView method, we will need to make something that user can see the output of the camera
+         *  we need to put a video, canvas tag, and camera main menu (the capture and change camera from rear to front
+         *  will be inside menu, also filter and effects) - The menu of the camera (capture, change camera, etc buttons)
+         * */
+        //<div class="camerajs-menu"><a>' + svgIconCapture + '</a></div>';
+        let menuDivTag: HTMLDivElement = document.createElement("div");
+        menuDivTag.className = "camerajs-menu";
+
+        //create the capture button (the svgIconCapture is a capture icon):
+        let svgIconCapture: any = '<?xml version="1.0" ?><svg style="enable-background:new 0 0 24 24;" version="1.1" viewBox="0 0 24 24" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g id="info"/><g id="icons"><path d="M19,7h-0.4c-0.4,0-0.7-0.2-0.9-0.6l-1.2-2.3c-0.3-0.7-1-1.1-1.8-1.1H9.2C8.5,3,7.8,3.4,7.4,4.1L6.3,6.4   C6.1,6.8,5.8,7,5.4,7H5c-2.2,0-4,1.8-4,4v6c0,2.2,1.8,4,4,4h14c2.2,0,4-1.8,4-4v-6C23,8.8,21.2,7,19,7z M12,17c-2.2,0-4-1.8-4-4   c0-2.2,1.8-4,4-4s4,1.8,4,4C16,15.2,14.2,17,12,17z" id="photo"/></g></svg>';
+        let captureButton: HTMLAnchorElement = document.createElement("a");
+        captureButton.innerHTML = svgIconCapture;
+
+        menuDivTag.appendChild(captureButton);
+
+        return menuDivTag;
+    }
 
     static listCameraAndMicrophones() {
         let inputs: any = {};
@@ -65,7 +110,6 @@ export class setCamera {
                         inputs[device.kind] = [];
                     }
                     inputs[device.kind].push({label: device.label, deviceId: device.deviceId});
-
                 });
 
                 //If no video input (webCam) found on user device, console log it
@@ -77,6 +121,5 @@ export class setCamera {
             utils.log(err.name + ": " + err.message, "warn");
             return false;
         });
-
     }
 }
