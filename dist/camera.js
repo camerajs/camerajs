@@ -216,6 +216,8 @@ var setCamera = function () {
             //Initialize the canvas to put the captured photo into it:
             var canvasElement = document.getElementById('camerajs-canvas-' + i);
             var canvasContext = canvasElement.getContext('2d');
+            canvasContext.translate(640, 0);
+            canvasContext.scale(-1, 1);
             //Capture photo:
             currentCameraTag.querySelector(".camerajs-menu>a").addEventListener("click", function () {
                 canvasContext.drawImage(videoElement, 0, 0, 640, 480);

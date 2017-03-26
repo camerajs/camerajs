@@ -39,6 +39,11 @@ export class setCamera {
             let canvasElement: HTMLCanvasElement = <HTMLCanvasElement>document.getElementById('camerajs-canvas-' + i);
             let canvasContext: any = canvasElement.getContext('2d');
 
+            //Mirroring the canvas
+            canvasContext.translate(640, 0);
+            canvasContext.scale(-1, 1);
+
+
             //Capture photo:
             currentCameraTag.querySelector(".camerajs-menu>a").addEventListener("click", function () {
                 canvasContext.drawImage(videoElement, 0, 0, 640, 480);
