@@ -1,7 +1,8 @@
 import {utils} from "./utils";
 export class setCamera {
     constructor() {
-        let cameraTags: NodeList = setCamera.getCameraTags();
+        let cameraTags: NodeList = setCamera.getCameraTags(); //List of founded camera tag elements
+
         if (cameraTags.length) {
             //if any camera tag found:
             this.createCameraView(cameraTags);
@@ -10,6 +11,7 @@ export class setCamera {
 
     private static getCameraTags() {
         /**
+         * getCameraTags() returns list of camera tags found on the HTML page.
          * This should be a method, because we will have more things to check for a camera-tag,
          * like some settings & configurations from the camera tag attributes
          **/
@@ -17,10 +19,12 @@ export class setCamera {
     }
 
     protected createCameraView(cameraTags: any) {
-        //Check the number of user camera/audio inputs that are installed into user device (if 0 , it means no camera found):
+        //Check the number of user camera/audio inputs which are installed into user device (if 0 or undefined , it means no camera found):
         setCamera.listCameraAndMicrophones();
 
-        //loop through founded camera tags, and insert video tag into them (video tag will let us stream camera output)
+
+        /*loop through founded camera tags, and insert video tag, canvas and menu into them
+         (video tag will let us stream camera output, canvas will capture the picture)*/
         for (let i = 0; i < cameraTags.length; i++) {
             let currentCameraTag: HTMLElement = cameraTags[i];
             currentCameraTag.className = 'camerajs-element';
@@ -28,7 +32,7 @@ export class setCamera {
             currentCameraTag.appendChild(setCamera._createCanvasElement(i));
             currentCameraTag.appendChild(setCamera._createCameraMenu());
 
-            //Stream the camera output by a video tag:
+            //Stream the camera output by the video tag:
             let videoElement: HTMLVideoElement = <HTMLVideoElement>document.getElementById('camerajs-' + i);
             navigator.mediaDevices.getUserMedia({video: true}).then(function (stream) {
                 videoElement.src = window.URL.createObjectURL(stream);
@@ -42,7 +46,6 @@ export class setCamera {
             //Mirroring the canvas
             canvasContext.translate(640, 0);
             canvasContext.scale(-1, 1);
-
 
             //Capture photo:
             currentCameraTag.querySelector(".camerajs-menu>a").addEventListener("click", function () {
@@ -117,13 +120,13 @@ export class setCamera {
                     inputs[device.kind].push({label: device.label, deviceId: device.deviceId});
                 });
 
-                //If no video input (webCam) found on user device, console log it
-                if (inputs['videoinput'].length == 0) {
-                    utils.log("No video input found on this device", 'warn');
-                }
+                //List of video inputs are accessible in return: inputs['videoinput']
                 return inputs;
+
             }).catch(function (err: any) {
-            utils.log(err.name + ": " + err.message, "warn");
+            if (err.length) {
+                utils.log(err.name + ": " + err.message, "warn");
+            }
             return false;
         });
     }

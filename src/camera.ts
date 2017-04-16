@@ -10,24 +10,26 @@ class cameraInitializer {
     }
 
     static async ready() {
-        let loadEventInstancew = new loadEvent();
+        let loadEventInstance = new loadEvent();
         //https://github.com/Microsoft/TypeScript/wiki/What's-new-in-TypeScript#downlevel-async-functions
 
-        await loadEventInstancew.eventListener();
+        await loadEventInstance.eventListener();
 
         if (!preferences.isHttps) {
             utils.log("HTTPS required", "warn");
         }
 
-        if (!browser.checkBrowserSupport()) {
-            utils.log("Your browser does not support camera", "warn");
-        }else{
-            //If user browser is supporting camera, then:
-            var i=new setCamera();
+        if (setCamera.listCameraAndMicrophones() == undefined) {
+            utils.log("No camera input found on this device.", 'warn');
         }
 
-
-
+        if (!browser.checkBrowserSupport()) {
+            utils.log("Your browser does not support camera", "warn");
+        } else {
+            /*If user browser is supporting camera, then call the setCamera
+             (defined in lib/setCamera.ts) and activate the camera*/
+            new setCamera();
+        }
     }
 }
 

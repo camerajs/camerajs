@@ -89,23 +89,28 @@ var cameraInitializer = function () {
     }
     cameraInitializer.ready = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var loadEventInstancew, i;
+            var loadEventInstance;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        loadEventInstancew = new load_1.loadEvent();
+                        loadEventInstance = new load_1.loadEvent();
                         //https://github.com/Microsoft/TypeScript/wiki/What's-new-in-TypeScript#downlevel-async-functions
-                        return [4 /*yield*/, loadEventInstancew.eventListener()];
+                        return [4 /*yield*/, loadEventInstance.eventListener()];
                     case 1:
                         //https://github.com/Microsoft/TypeScript/wiki/What's-new-in-TypeScript#downlevel-async-functions
                         _a.sent();
                         if (!preferences_1.preferences.isHttps) {
                             utils_1.utils.log("HTTPS required", "warn");
                         }
+                        if (setCamera_1.setCamera.listCameraAndMicrophones() == undefined) {
+                            utils_1.utils.log("No camera input found on this device.", 'warn');
+                        }
                         if (!browser_1.browser.checkBrowserSupport()) {
                             utils_1.utils.log("Your browser does not support camera", "warn");
                         } else {
-                            i = new setCamera_1.setCamera();
+                            /*If user browser is supporting camera, then call the setCamera
+                             (defined in lib/setCamera.ts) and activate the camera*/
+                            new setCamera_1.setCamera();
                         }
                         return [2 /*return*/];
                 }
@@ -185,7 +190,7 @@ exports.browser = browser;
 var utils_1 = require("./utils");
 var setCamera = function () {
     function setCamera() {
-        var cameraTags = setCamera.getCameraTags();
+        var cameraTags = setCamera.getCameraTags(); //List of founded camera tag elements
         if (cameraTags.length) {
             //if any camera tag found:
             this.createCameraView(cameraTags);
@@ -193,13 +198,14 @@ var setCamera = function () {
     }
     setCamera.getCameraTags = function () {
         /**
+         * getCameraTags() returns list of camera tags found on the HTML page.
          * This should be a method, because we will have more things to check for a camera-tag,
          * like some settings & configurations from the camera tag attributes
          **/
         return document.querySelectorAll('[data-camera]');
     };
     setCamera.prototype.createCameraView = function (cameraTags) {
-        //Check the number of user camera/audio inputs that are installed into user device (if 0 , it means no camera found):
+        //Check the number of user camera/audio inputs which are installed into user device (if 0 or undefined , it means no camera found):
         setCamera.listCameraAndMicrophones();
         var _loop_1 = function _loop_1(i) {
             var currentCameraTag = cameraTags[i];
@@ -216,6 +222,7 @@ var setCamera = function () {
             //Initialize the canvas to put the captured photo into it:
             var canvasElement = document.getElementById('camerajs-canvas-' + i);
             var canvasContext = canvasElement.getContext('2d');
+            //Mirroring the canvas
             canvasContext.translate(640, 0);
             canvasContext.scale(-1, 1);
             //Capture photo:
@@ -286,13 +293,12 @@ var setCamera = function () {
                 }
                 inputs[device.kind].push({ label: device.label, deviceId: device.deviceId });
             });
-            //If no video input (webCam) found on user device, console log it
-            if (inputs['videoinput'].length == 0) {
-                utils_1.utils.log("No video input found on this device", 'warn');
-            }
+            //List of video inputs: inputs['videoinput']
             return inputs;
         }).catch(function (err) {
-            utils_1.utils.log(err.name + ": " + err.message, "warn");
+            if (err.length) {
+                utils_1.utils.log(err.name + ": " + err.message, "warn");
+            }
             return false;
         });
     };
@@ -307,6 +313,7 @@ var preferences_1 = require("../preferences");
 var utils = function () {
     function utils() {}
     utils.log = function (message, type) {
+        //message = message == undefined || message == null ? '' : message;
         message = 'Camera.js: ' + message;
         if (preferences_1.preferences.debug) {
             switch (type) {
@@ -315,9 +322,6 @@ var utils = function () {
                     break;
                 case 'info':
                     console.info(message);
-                    break;
-                case 'debug':
-                    console.debug(message);
                     break;
                 default:
                     console.log(message);
