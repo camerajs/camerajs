@@ -107,9 +107,11 @@ var cameraInitializer = function () {
                         }
                         if (!browser_1.browser.checkBrowserSupport()) {
                             utils_1.utils.log("Your browser does not support camera", "warn");
-                        } else {
-                            /*If user browser is supporting camera, then call the setCamera
-                             (defined in lib/setCamera.ts) and activate the camera*/
+                        }
+                        if (browser_1.browser.checkBrowserSupport() && setCamera_1.setCamera.listCameraAndMicrophones()) {
+                            /*If user browser is supporting camera and already has at least one active camera, then we are safe to call
+                             setCamera()
+                             */
                             new setCamera_1.setCamera();
                         }
                         return [2 /*return*/];
@@ -213,7 +215,7 @@ var setCamera = function () {
             currentCameraTag.appendChild(setCamera._createVideoElement(i));
             currentCameraTag.appendChild(setCamera._createCanvasElement(i));
             currentCameraTag.appendChild(setCamera._createCameraMenu());
-            //Stream the camera output by a video tag:
+            //Stream the camera output by the video tag:
             var videoElement = document.getElementById('camerajs-' + i);
             navigator.mediaDevices.getUserMedia({ video: true }).then(function (stream) {
                 videoElement.src = window.URL.createObjectURL(stream);
@@ -227,10 +229,11 @@ var setCamera = function () {
             canvasContext.scale(-1, 1);
             //Capture photo:
             currentCameraTag.querySelector(".camerajs-menu>a").addEventListener("click", function () {
-                canvasContext.drawImage(videoElement, 0, 0, 640, 480);
+                canvasContext.drawImage(videoElement, 0, 0, 640, 480); //Draw the captured photo on canvas
             });
         };
-        //loop through founded camera tags, and insert video tag into them (video tag will let us stream camera output)
+        /*loop through founded camera tags, and insert video tag, canvas and menu into them
+         (video tag will let us stream camera output, canvas will capture the picture)*/
         for (var i = 0; i < cameraTags.length; i++) {
             _loop_1(i);
         }
@@ -293,7 +296,7 @@ var setCamera = function () {
                 }
                 inputs[device.kind].push({ label: device.label, deviceId: device.deviceId });
             });
-            //List of video inputs: inputs['videoinput']
+            //List of video inputs are accessible in return: inputs['videoinput']
             return inputs;
         }).catch(function (err) {
             if (err.length) {
@@ -313,7 +316,6 @@ var preferences_1 = require("../preferences");
 var utils = function () {
     function utils() {}
     utils.log = function (message, type) {
-        //message = message == undefined || message == null ? '' : message;
         message = 'Camera.js: ' + message;
         if (preferences_1.preferences.debug) {
             switch (type) {
@@ -332,7 +334,7 @@ var utils = function () {
         return 'https:' == document.location.protocol;
     };
     /**
-     * http://stackoverflow.com/questions/5717093/check-if-a-javascript-string-is-a-url
+     * http://stackoverflow.com/questions/5717093
      * @param url
      * @returns {boolean}
      */

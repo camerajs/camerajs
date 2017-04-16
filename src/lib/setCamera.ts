@@ -49,7 +49,7 @@ export class setCamera {
 
             //Capture photo:
             currentCameraTag.querySelector(".camerajs-menu>a").addEventListener("click", function () {
-                canvasContext.drawImage(videoElement, 0, 0, 640, 480);
+                canvasContext.drawImage(videoElement, 0, 0, 640, 480); //Draw the captured photo on canvas
             });
         }
     }

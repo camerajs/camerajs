@@ -25,11 +25,15 @@ class cameraInitializer {
 
         if (!browser.checkBrowserSupport()) {
             utils.log("Your browser does not support camera", "warn");
-        } else {
-            /*If user browser is supporting camera, then call the setCamera
-             (defined in lib/setCamera.ts) and activate the camera*/
-            new setCamera();
         }
+
+        if (browser.checkBrowserSupport() && setCamera.listCameraAndMicrophones()) {
+            /*If user browser is supporting camera and already has at least one active camera, then we are safe to call
+             setCamera()
+             */
+            new setCamera()
+        }
+
     }
 }
 
