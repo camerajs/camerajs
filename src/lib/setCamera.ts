@@ -102,7 +102,8 @@ export class setCamera {
         return menuDivTag;
     }
 
-    static listCameraAndMicrophones() {
+    //@todo listCameraAndMicrophones is not working as expected, returns "undefined" instead of the array values!
+    static listCameraAndMicrophones():any{
         let inputs: any = {};
         //This function will return the number of founded cameras and microphones on user's device.
         navigator.mediaDevices.enumerateDevices()

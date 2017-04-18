@@ -108,7 +108,7 @@ var cameraInitializer = function () {
                         if (!browser_1.browser.checkBrowserSupport()) {
                             utils_1.utils.log("Your browser does not support camera", "warn");
                         }
-                        if (browser_1.browser.checkBrowserSupport() && setCamera_1.setCamera.listCameraAndMicrophones()) {
+                        if (browser_1.browser.checkBrowserSupport() && setCamera_1.setCamera.listCameraAndMicrophones() != undefined) {
                             /*If user browser is supporting camera and already has at least one active camera, then we are safe to call
                              setCamera()
                              */
@@ -280,6 +280,7 @@ var setCamera = function () {
         menuDivTag.appendChild(captureButton);
         return menuDivTag;
     };
+    //@todo listCameraAndMicrophones is not working as expected, returns "undefined" instead of the array values!
     setCamera.listCameraAndMicrophones = function () {
         var inputs = {};
         //This function will return the number of founded cameras and microphones on user's device.

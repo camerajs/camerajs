@@ -27,7 +27,9 @@ class cameraInitializer {
             utils.log("Your browser does not support camera", "warn");
         }
 
-        if (browser.checkBrowserSupport() && setCamera.listCameraAndMicrophones()) {
+
+
+        if (browser.checkBrowserSupport() && setCamera.listCameraAndMicrophones()!= undefined) {
             /*If user browser is supporting camera and already has at least one active camera, then we are safe to call
              setCamera()
              */
